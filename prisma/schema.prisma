@@ -3,6 +3,56 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
+}
+
+model Colors {
+  id         Int       @id @default(autoincrement())
+  name       String    @db.VarChar(50)
+  rgb        String?   @db.VarChar(11)
+  hex_code   String?   @db.VarChar(10)
+  product_id Int?
+  products   Products? @relation(fields: [product_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "colors_ibfk_1")
+
+  @@index([product_id], map: "product_id")
+  @@map("colors")
+}
+
+model Images {
+  id          Int       @id @default(autoincrement())
+  path        String    @db.VarChar(255)
+  image_order Int?      @db.TinyInt
+  product_id  Int?
+  products    Products? @relation(fields: [product_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "images_ibfk_1")
+
+  @@index([product_id], map: "product_id")
+  @@map("images")
+}
+
+model Products {
+  id          Int      @id @default(autoincrement())
+  name        String   @db.VarChar(255)
+  reference   String   @db.VarChar(30)
+  price       Float    @db.Float
+  category    String?  @db.VarChar(50)
+  description String?  @db.VarChar(8000)
+  brand       String?  @db.VarChar(100)
+  gender      String?  @db.VarChar(50)
+  colors      Colors[]
+  images      Images[]
+  skus        Skus[]
+
+  @@map("products")
+}
+
+model Skus {
+  id         Int       @id @default(autoincrement())
+  size       String    @db.VarChar(10)
+  stock      BigInt
+  product_id Int?
+  products   Products? @relation(fields: [product_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "skus_ibfk_1")
+
+  @@index([product_id], map: "product_id")
+  @@map("skus")
 }
